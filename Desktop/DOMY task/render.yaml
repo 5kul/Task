@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: domy-task
+    env: node
+    rootDir: .
+    buildCommand: cd backend && npm install && cd ../frontend && npm install && npm run build
+    startCommand: node backend/server.js
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false

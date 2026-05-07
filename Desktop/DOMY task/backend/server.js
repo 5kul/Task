@@ -10,6 +10,8 @@ if (typeof global.File === 'undefined') {
 
 require('dotenv').config();
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const scrape = require('./scraper/scrape');
@@ -31,6 +33,23 @@ app.post('/api/scrape', async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 });
+
+const frontendDistPath = path.join(__dirname, '../frontend/dist');
+if (fs.existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
+
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+
+    res.sendFile(path.join(frontendDistPath, 'index.html'), (err) => {
+      if (err) {
+        next(err);
+      }
+    });
+  });
+}
 
 // Start server only after DB connection and initial scrape
 (async function start(){
